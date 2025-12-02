@@ -1,5 +1,5 @@
 name: 自动合并 sin.txt 和 us.txt 生成 ips.txt
-# 触发条件：当 HKG.txt 或 NRT.txt 被 push 或 PR 合并时
+# 触发条件：当 sin.txt 或 us.txt 被 push 或 PR 合并时
 on:
   push:
     paths:
