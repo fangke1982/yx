@@ -1,0 +1,35 @@
+name: 自动合并 sin.txt 和 us.txt 生成 ips.txt
+# 触发条件：当 HKG.txt 或 NRT.txt 被 push 或 PR 合并时
+on:
+  push:
+    paths:
+      - 'sin.txt'
+      - 'us.txt'
+  pull_request:
+    paths:
+      - 'sin.txt'
+      - 'us.txt'
+    types: [closed]  # 仅当 PR 合并时触发（可选，避免 PR 未合并时重复生成）
+
+jobs:
+  merge-files:
+    runs-on: ubuntu-latest # 运行环境（免费的 Ubuntu 服务器）
+    steps:
+      # 步骤 1：拉取仓库最新代码
+      - name: checkout 代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 拉取完整历史，确保能提交更改
+
+      # 步骤 2：合并 sin.txt 和 us.txt 生成 ips.txt
+      - name: 合并文件内容
+        run: |
+          # 读取 sin.txt 和 us.txt，合并后写入 ips.txt（去前、后空白，自动空一行分隔）
+          cat sin.txt > ips.txt
+
+          echo "" >> ips.txt  # 添加空行，增强文件阅读性
+
+          cat us.txt >> ips.txt
+
+          echo "✅ 合并完成，ips.txt 内容如下："
+          cat ips.txt # 日志中显示 ips.txt 内容，方便调试
