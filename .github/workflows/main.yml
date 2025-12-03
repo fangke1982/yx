@@ -7,15 +7,17 @@ on:
       - 'us.txt'
       - 'jp.txt'
   pull_request:
+    types: [closed]  # PR 被关闭时触发
     paths:
       - 'sin.txt'
       - 'us.txt'
       - 'jp.txt'
-    types: [closed]
 
 jobs:
   merge-files:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true || github.event_name == 'push'
+
     steps:
       - name: checkout 代码
         uses: actions/checkout@v4
@@ -24,35 +26,25 @@ jobs:
 
       - name: 合并文件内容
         run: |
-          # 创建或清空 ips.txt 文件
-          > ips.txt
+          # 去掉输入文件的空行（可选）
+          sed -i '/^$/d' sin.txt
+          sed -i '/^$/d' us.txt
+          sed -i '/^$/d' jp.txt
 
-          # 定义一个函数来安全地追加文件内容
-          append_file_if_exists() {
-              local file="$1"
-              if [ -s "$file" ]; then
-                  echo "" >> ips.txt
-                  cat "$file" >> ips.txt
-              fi
-          }
+          # 合并内容
+          cat sin.txt > ips.txt
+          echo "" >> ips.txt
+          cat us.txt >> ips.txt
+          echo "" >> ips.txt
+          cat jp.txt >> ips.txt
 
-          # 按顺序追加各文件内容
-          append_file_if_exists 'sin.txt'
-          append_file_if_exists 'us.txt'
-          append_file_if_exists 'jp.txt'
-
-          echo "✅ 合并完成，ips.txt 内容如下："
+          echo "合并完成："
           cat ips.txt
 
       - name: 提交 ips.txt 更改
-        if: |
-          # 仅在 ips.txt 有变更时才执行此步骤
-          !contains(github.event.commits[0].modified, 'ips.txt') || |
-          !contains(github.event.commits[0].removed, 'ips.txt') || |
-          !contains(github.event.commits[0].added, 'ips.txt')
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "auto: 合并 sin.txt, us.txt, jp.txt 生成 ips.txt"
+          commit_message: "auto: 合并 sin.txt、us.txt、jp.txt 生成 ips.txt"
           file_pattern: "ips.txt"
           commit_user_name: "GitHub Actions"
           commit_user_email: "actions@github.com"
