@@ -1,5 +1,5 @@
 name: 自动合并 sin.txt 和 us.txt 和 jp.txt 生成 ips.txt
-# 触发条件：当 sin.txt 或 us.txt 被 push 或 PR 合并时
+
 on:
   push:
     paths:
@@ -11,34 +11,48 @@ on:
       - 'sin.txt'
       - 'us.txt'
       - 'jp.txt'
-    types: [closed]  # 仅当 PR 合并时触发（可选，避免 PR 未合并时重复生成）
+    types: [closed]
 
 jobs:
   merge-files:
-    runs-on: ubuntu-latest # 运行环境（免费的 Ubuntu 服务器）
+    runs-on: ubuntu-latest
     steps:
-      # 步骤 1：拉取仓库最新代码
       - name: checkout 代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # 拉取完整历史，确保能提交更改
+          fetch-depth: 0
 
-      # 步骤 2：合并 sin.txt 和 us.txt 生成 ips.txt
       - name: 合并文件内容
         run: |
-          # 读取 sin.txt 和 us.txt，合并后写入 ips.txt（去前、后空白，自动空一行分隔）
-          cat sin.txt > ips.txt
-          echo "" >> ips.txt  # 添加空行，增强文件阅读性
-          cat us.txt >> ips.txt
-          echo "" >> ips.txt  # 添加空行，增强文件阅读性          
-          cat jp.txt >> ips.txt          
+          # 创建或清空 ips.txt 文件
+          > ips.txt
+
+          # 定义一个函数来安全地追加文件内容
+          append_file_if_exists() {
+              local file="$1"
+              if [ -s "$file" ]; then
+                  echo "" >> ips.txt
+                  cat "$file" >> ips.txt
+              fi
+          }
+
+          # 按顺序追加各文件内容
+          append_file_if_exists 'sin.txt'
+          append_file_if_exists 'us.txt'
+          append_file_if_exists 'jp.txt'
+
           echo "✅ 合并完成，ips.txt 内容如下："
-          cat ips.txt # 日志中显示 ips.txt 内容，方便调试
-      # 步骤 3：自动提交 ips.txt 到仓库
+          cat ips.txt
+
       - name: 提交 ips.txt 更改
+        if: |
+          # 仅在 ips.txt 有变更时才执行此步骤
+          !contains(github.event.commits[0].modified, 'ips.txt') || |
+          !contains(github.event.commits[0].removed, 'ips.txt') || |
+          !contains(github.event.commits[0].added, 'ips.txt')
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "auto: 合并 sin.txt 和 us.txt 和 jp.txt 生成 ips.txt" # 提交说明
-          file_pattern: "ips.txt" # 仅提交 ips.txt 的变动
-          commit_user_name: "GitHub Actions" # 提交者名称（可自定义）
-          commit_user_email: "actions@github.com" # 提交者邮箱（可自定义）
+          commit_message: "auto: 合并 sin.txt, us.txt, jp.txt 生成 ips.txt"
+          file_pattern: "ips.txt"
+          commit_user_name: "GitHub Actions"
+          commit_user_email: "actions@github.com"
