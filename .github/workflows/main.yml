@@ -26,10 +26,15 @@ jobs:
         run: |
           # 读取 sin.txt 和 us.txt，合并后写入 ips.txt（去前、后空白，自动空一行分隔）
           cat sin.txt > ips.txt
-
           echo "" >> ips.txt  # 添加空行，增强文件阅读性
-
           cat us.txt >> ips.txt
-
           echo "✅ 合并完成，ips.txt 内容如下："
           cat ips.txt # 日志中显示 ips.txt 内容，方便调试
+      # 步骤 3：自动提交 ips.txt 到仓库
+      - name: 提交 ips.txt 更改
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "auto: 合并 sin.txt 和 us.txt 生成 ips.txt" # 提交说明
+          file_pattern: "ips.txt" # 仅提交 ips.txt 的变动
+          commit_user_name: "GitHub Actions" # 提交者名称（可自定义）
+          commit_user_email: "actions@github.com" # 提交者邮箱（可自定义）
