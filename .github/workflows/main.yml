@@ -1,5 +1,8 @@
 name: 自动合并 sin.txt 和 us.txt 和 jp.txt 生成 ips.txt
 
+permissions:
+  contents: write  # 关键：允许提交回仓库
+
 on:
   push:
     paths:
@@ -7,7 +10,7 @@ on:
       - 'us.txt'
       - 'jp.txt'
   pull_request:
-    types: [closed]  # PR 被关闭时触发
+    types: [closed]
     paths:
       - 'sin.txt'
       - 'us.txt'
@@ -26,25 +29,14 @@ jobs:
 
       - name: 合并文件内容
         run: |
-          # 去掉输入文件的空行（可选）
-          sed -i '/^$/d' sin.txt
-          sed -i '/^$/d' us.txt
-          sed -i '/^$/d' jp.txt
-
-          # 合并内容
           cat sin.txt > ips.txt
           echo "" >> ips.txt
           cat us.txt >> ips.txt
           echo "" >> ips.txt
           cat jp.txt >> ips.txt
 
-          echo "合并完成："
-          cat ips.txt
-
       - name: 提交 ips.txt 更改
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "auto: 合并 sin.txt、us.txt、jp.txt 生成 ips.txt"
           file_pattern: "ips.txt"
-          commit_user_name: "GitHub Actions"
-          commit_user_email: "actions@github.com"
