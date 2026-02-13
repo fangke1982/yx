@@ -1,4 +1,4 @@
-name: 自动合并 sin.txt 和 us.txt 和 jp.txt 生成 ips.txt
+name: 自动合并 sin.txt 和 us.txt 和 jp.txt 和 fra.txt  生成 ips.txt
 
 permissions:
   contents: write  # 关键：允许提交回仓库
@@ -9,13 +9,14 @@ on:
       - 'sin.txt'
       - 'us.txt'
       - 'jp.txt'
+      - 'fra.txt'
   pull_request:
     types: [closed]
     paths:
       - 'sin.txt'
       - 'us.txt'
       - 'jp.txt'
-
+      - 'fra.txt'
 jobs:
   merge-files:
     runs-on: ubuntu-latest
@@ -34,9 +35,11 @@ jobs:
           cat us.txt >> ips.txt
           echo "" >> ips.txt
           cat jp.txt >> ips.txt
+          echo "" >> ips.txt
+          cat fra.txt >> ips.txt
 
       - name: 提交 ips.txt 更改
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "auto: 合并 sin.txt、us.txt、jp.txt 生成 ips.txt"
+          commit_message: "auto: 合并 sin.txt、us.txt、jp.txt fra.txt 生成 ips.txt"
           file_pattern: "ips.txt"
