@@ -8,15 +8,15 @@ on:
     paths:
       - 'sin.txt'
       - 'us.txt'
-      - 'jp.txt'
-      - 'fra.txt'
+#      - 'jp.txt'
+#      - 'fra.txt'
   pull_request:
     types: [closed]
     paths:
       - 'sin.txt'
       - 'us.txt'
-      - 'jp.txt'
-      - 'fra.txt'
+#      - 'jp.txt'
+#      - 'fra.txt'
 jobs:
   merge-files:
     runs-on: ubuntu-latest
@@ -33,10 +33,10 @@ jobs:
           cat sin.txt > ips.txt
           echo "" >> ips.txt
           cat us.txt >> ips.txt
-          echo "" >> ips.txt
-          cat jp.txt >> ips.txt
-          echo "" >> ips.txt
-          cat fra.txt >> ips.txt
+#          echo "" >> ips.txt
+#          cat jp.txt >> ips.txt
+#          echo "" >> ips.txt
+#          cat fra.txt >> ips.txt
 
       - name: 提交 ips.txt 更改
         uses: stefanzweifel/git-auto-commit-action@v5
